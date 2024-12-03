@@ -23,8 +23,8 @@ A NestJS GraphQL API for managing packages with user authentication and role-bas
 1. Clone the repository
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
+git clone https://github.com/Barnyvic/packages-graphQl
+cd packages-graphQl
 ```
 
 2. Install dependencies
