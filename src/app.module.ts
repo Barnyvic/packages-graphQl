@@ -7,6 +7,7 @@ import { UserModule } from './users/users.module';
 import { ApolloDriver } from '@nestjs/apollo';
 import { AuthModule } from './auth/auth.module';
 import { PackagesModule } from './packages/packages.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { PackagesModule } from './packages/packages.module';
     UserModule,
     AuthModule,
     PackagesModule,
+    ThrottlerModule.forRoot([{
+      ttl: 60,
+      limit: 100,
+    }]),
   ],
   controllers: [],
   providers: [],
