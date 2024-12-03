@@ -15,7 +15,7 @@ import { PackagesModule } from './packages/packages.module';
     }),
     MongooseModule.forRoot(process.env.MONGODB_URI),
     GraphQLModule.forRoot({
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       driver: ApolloDriver,
       playground: true,
       context: ({ req, res }) => ({ req, res }),

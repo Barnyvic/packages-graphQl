@@ -2,6 +2,74 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type UserType {
+  id: ID!
+  username: String!
+  email: String!
+  role: Role!
+}
+
+"""User roles"""
+enum Role {
+  User
+  Admin
+}
+
+type AuthType {
+  access_token: String!
+  email: String!
+}
+
+type PackageType {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  expirationDate: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
-  getHello: String!
+  me: UserType!
+  packages: [PackageType!]!
+  package(id: ID!): PackageType!
+  packagesByExpirationDate(expirationDate: DateTime!): [PackageType!]!
+}
+
+type Mutation {
+  register(createUserInput: CreateUserInput!): UserType!
+  login(loginUserInput: LoginUserInput!): AuthType!
+  createPackage(createPackageInput: CreatePackageInput!): PackageType!
+  updatePackage(updatePackageInput: UpdatePackageInput!): PackageType!
+  deletePackage(id: ID!): PackageType!
+}
+
+input CreateUserInput {
+  username: String!
+  password: String!
+  role: Role! = User
+  email: String!
+}
+
+input LoginUserInput {
+  email: String!
+  password: String!
+}
+
+input CreatePackageInput {
+  name: String!
+  description: String
+  price: Float!
+  expirationDate: DateTime!
+}
+
+input UpdatePackageInput {
+  id: ID!
+  name: String
+  description: String
+  price: Float
 }
