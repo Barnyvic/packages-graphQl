@@ -35,9 +35,16 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type PaginatedPackagesResponse {
+  items: [PackageType!]!
+  total: Int!
+  skip: Int!
+  take: Int!
+}
+
 type Query {
   me: UserType!
-  packages(expirationDate: DateTime, skip: Int = 0, take: Int = 10): [PackageType!]!
+  packages(expirationDate: DateTime, skip: Int = 0, take: Int = 10): PaginatedPackagesResponse!
   package(id: ID!): PackageType!
   searchPackages(searchTerm: String, fields: [String!]): [PackageType!]!
 }

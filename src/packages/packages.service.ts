@@ -11,6 +11,7 @@ import { CreatePackageInput } from './dto/create-package.dto';
 import { UpdatePackageInput } from './dto/update-package.input';
 import { SearchPackageArgs } from './dto/search-package.args';
 import { PaginationArgs } from './dto/pagination.args';
+import { PaginatedPackagesResponse } from './models/paginated-packages.type';
 
 @Injectable()
 export class PackagesService {
@@ -23,13 +24,29 @@ export class PackagesService {
     return createdPackage.save();
   }
 
-  async findAll(paginationArgs?: PaginationArgs): Promise<Package[]> {
-    return this.packageModel
-      .find()
-      .sort({ name: 1 })
-      .skip(paginationArgs?.skip || 0)
-      .limit(paginationArgs?.take || 10)
-      .exec();
+  async findAll(
+    paginationArgs?: PaginationArgs,
+  ): Promise<PaginatedPackagesResponse> {
+    const [items, total] = await Promise.all([
+      this.packageModel
+        .find()
+        .sort({ name: 1 })
+        .skip(paginationArgs?.skip || 0)
+        .limit(paginationArgs?.take || 10)
+        .lean()
+        .exec(),
+      this.packageModel.countDocuments(),
+    ]);
+
+    return {
+      items: items.map((item) => ({
+        ...item,
+        id: item._id.toString(),
+      })),
+      total,
+      skip: paginationArgs?.skip || 0,
+      take: paginationArgs?.take || 10,
+    };
   }
 
   async findOne(id: string): Promise<Package> {
@@ -98,7 +115,7 @@ export class PackagesService {
     const { searchTerm, fields = ['name', 'description'] } = searchArgs;
 
     if (!searchTerm) {
-      return this.findAll();
+      return this.packageModel.find().sort({ name: 1 }).exec();
     }
 
     const searchQuery = {

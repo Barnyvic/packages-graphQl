@@ -1,6 +1,6 @@
 # GraphQL Packages API
 
-A NestJS GraphQL API for managing packages with user authentication and role-based access control.
+A NestJS GraphQL API for managing packages with user authentication, role-based access control, and advanced querying capabilities.
 
 ## Features
 
@@ -9,14 +9,21 @@ A NestJS GraphQL API for managing packages with user authentication and role-bas
 - JWT Authentication
 - Role-based access control (Admin/User)
 - Package management (CRUD operations)
-- Date-based filtering for packages
+- Advanced querying features:
+  - Pagination
+  - Search functionality
+  - Date-based filtering
+  - Price range filtering
+  - Sorting options
+- Rate limiting
 - Error handling with custom filters
+- Health checks
 
 ## Prerequisites
 
 - Node.js (v14 or later)
 - MongoDB instance
-- npm or yarn
+- yarn
 
 ## Installation
 
@@ -113,33 +120,56 @@ mutation {
 }
 ```
 
-2. Query Packages:
+2. Query Packages (with pagination):
 
 ```graphql
 query {
-  packages {
+  packages(skip: 0, take: 5) {
+    items {
+      id
+      name
+      description
+      price
+      expirationDate
+    }
+    total
+    skip
+    take
+  }
+}
+```
+
+3. Search Packages:
+
+```graphql
+query {
+  searchPackages(searchTerm: "premium", fields: ["name", "description"]) {
     id
     name
     description
     price
-    expirationDate
   }
 }
 ```
 
-3. Query Packages by Expiration Date:
+4. Query Packages by Expiration Date:
 
 ```graphql
 query {
   packages(expirationDate: "2024-12-31") {
-    id
-    name
-    expirationDate
+    items {
+      id
+      name
+      expirationDate
+    }
+    total
+    skip
+    take
   }
 }
 ```
 
-4. Update Package (Admin only):
+5. Update Package (Admin only):
 
 ```graphql
 mutation {
@@ -155,7 +185,7 @@ mutation {
 }
 ```
 
-5. Delete Package (Admin only):
+6. Delete Package (Admin only):
 
 ```graphql
 mutation {
@@ -203,7 +233,7 @@ yarn start:dev
 # Production build
 yarn build
 yarn start:prod
-
+```
 
 ## Environment Variables
 
@@ -222,6 +252,7 @@ src/
 ├── common/         # Shared utilities and filters
 ├── packages/       # Package module
 ├── users/          # User module
+├── health/         # Health check endpoints
 ├── app.module.ts   # Main application module
 └── main.ts         # Application entry point
 ```

@@ -10,6 +10,7 @@ import { PackageType } from './models/package.type';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { SearchPackageArgs } from './dto/search-package.args';
 import { PaginationArgs } from './dto/pagination.args';
+import { PaginatedPackagesResponse } from './models/paginated-packages.type';
 
 @Resolver(() => PackageType)
 export class PackagesResolver {
@@ -24,7 +25,7 @@ export class PackagesResolver {
     return this.packageService.create(createPackageInput);
   }
 
-  @Query(() => [PackageType], { name: 'packages' })
+  @Query(() => PaginatedPackagesResponse, { name: 'packages' })
   @UseGuards(GqlAuthGuard, RolesGuard)
   async findAll(
     @Args('expirationDate', { type: () => Date, nullable: true })
