@@ -16,4 +16,10 @@ export class PackageType {
 
   @Field(() => Date)
   expirationDate: Date;
+
+  @Field(() => Date)
+  createdAt: Date;
+
+  @Field(() => Date)
+  updatedAt: Date;
 }

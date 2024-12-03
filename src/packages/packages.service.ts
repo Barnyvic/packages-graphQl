@@ -9,6 +9,8 @@ import { Model, Types } from 'mongoose';
 import { Package } from './schema/package.schema';
 import { CreatePackageInput } from './dto/create-package.dto';
 import { UpdatePackageInput } from './dto/update-package.input';
+import { SearchPackageArgs } from './dto/search-package.args';
+import { PaginationArgs } from './dto/pagination.args';
 
 @Injectable()
 export class PackagesService {
@@ -21,8 +23,13 @@ export class PackagesService {
     return createdPackage.save();
   }
 
-  async findAll(): Promise<Package[]> {
-    return this.packageModel.find().sort({ name: 1 }).exec();
+  async findAll(paginationArgs?: PaginationArgs): Promise<Package[]> {
+    return this.packageModel
+      .find()
+      .sort({ name: 1 })
+      .skip(paginationArgs?.skip || 0)
+      .limit(paginationArgs?.take || 10)
+      .exec();
   }
 
   async findOne(id: string): Promise<Package> {
@@ -35,7 +42,10 @@ export class PackagesService {
     return pkg;
   }
 
-  async findByExpirationDate(expirationDate: Date): Promise<Package[]> {
+  async findByExpirationDate(
+    expirationDate: Date,
+    paginationArgs?: PaginationArgs,
+  ): Promise<Package[]> {
     const startOfDay = new Date(expirationDate);
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -49,6 +59,8 @@ export class PackagesService {
           $lte: endOfDay,
         },
       })
+      .skip(paginationArgs?.skip || 0)
+      .limit(paginationArgs?.take || 10)
       .exec();
   }
 
@@ -80,5 +92,30 @@ export class PackagesService {
     if (!deletedPackage)
       throw new NotFoundException(`Package with ID ${id} not found`);
     return deletedPackage;
+  }
+
+  async search(searchArgs: SearchPackageArgs): Promise<Package[]> {
+    const { searchTerm, fields = ['name', 'description'] } = searchArgs;
+
+    if (!searchTerm) {
+      return this.findAll();
+    }
+
+    const searchQuery = {
+      $or: fields.map((field) => ({
+        [field]: { $regex: searchTerm, $options: 'i' },
+      })),
+    };
+
+    return this.packageModel.find(searchQuery).sort({ name: 1 }).exec();
+  }
+
+  async findByPriceRange(min: number, max: number): Promise<Package[]> {
+    return this.packageModel
+      .find({
+        price: { $gte: min, $lte: max },
+      })
+      .sort({ price: 1 })
+      .exec();
   }
 }

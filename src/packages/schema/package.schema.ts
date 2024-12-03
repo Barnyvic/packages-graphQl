@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({ timestamps: true })
 export class Package extends Document {
   @Prop({ required: true })
   name: string;
@@ -14,6 +14,12 @@ export class Package extends Document {
 
   @Prop({ required: true })
   expirationDate: Date;
+
+  @Prop({ type: Date })
+  createdAt: Date;
+
+  @Prop({ type: Date })
+  updatedAt: Date;
 }
 
 export const PackageSchema = SchemaFactory.createForClass(Package);

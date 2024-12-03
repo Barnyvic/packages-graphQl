@@ -8,6 +8,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../users/enums/role.enum';
 import { PackageType } from './models/package.type';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { SearchPackageArgs } from './dto/search-package.args';
+import { PaginationArgs } from './dto/pagination.args';
 
 @Resolver(() => PackageType)
 export class PackagesResolver {
@@ -27,11 +29,15 @@ export class PackagesResolver {
   async findAll(
     @Args('expirationDate', { type: () => Date, nullable: true })
     expirationDate?: Date,
+    @Args() paginationArgs?: PaginationArgs,
   ) {
     if (expirationDate) {
-      return this.packageService.findByExpirationDate(expirationDate);
+      return this.packageService.findByExpirationDate(
+        expirationDate,
+        paginationArgs,
+      );
     }
-    return this.packageService.findAll();
+    return this.packageService.findAll(paginationArgs);
   }
 
   @Query(() => PackageType, { name: 'package' })
@@ -54,5 +60,11 @@ export class PackagesResolver {
   @Roles(Role.Admin)
   async deletePackage(@Args('id', { type: () => ID }) id: string) {
     return this.packageService.remove(id);
+  }
+
+  @Query(() => [PackageType], { name: 'searchPackages' })
+  @UseGuards(GqlAuthGuard)
+  async searchPackages(@Args() searchArgs: SearchPackageArgs) {
+    return this.packageService.search(searchArgs);
   }
 }
