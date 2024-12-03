@@ -22,7 +22,7 @@ export class PackagesService {
   }
 
   async findAll(): Promise<Package[]> {
-    return this.packageModel.find().exec();
+    return this.packageModel.find().sort({ name: 1 }).exec();
   }
 
   async findOne(id: string): Promise<Package> {
