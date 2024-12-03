@@ -35,9 +35,8 @@ scalar DateTime
 
 type Query {
   me: UserType!
-  packages: [PackageType!]!
+  packages(expirationDate: DateTime): [PackageType!]!
   package(id: ID!): PackageType!
-  packagesByExpirationDate(expirationDate: DateTime!): [PackageType!]!
 }
 
 type Mutation {

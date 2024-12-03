@@ -23,18 +23,21 @@ export class PackagesResolver {
   }
 
   @Query(() => [PackageType], { name: 'packages' })
-  async findAll() {
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  async findAll(
+    @Args('expirationDate', { type: () => Date, nullable: true })
+    expirationDate?: Date,
+  ) {
+    if (expirationDate) {
+      return this.packageService.findByExpirationDate(expirationDate);
+    }
     return this.packageService.findAll();
   }
 
   @Query(() => PackageType, { name: 'package' })
+  @UseGuards(GqlAuthGuard, RolesGuard)
   async findOne(@Args('id', { type: () => ID }) id: string) {
     return this.packageService.findOne(id);
-  }
-
-  @Query(() => [PackageType], { name: 'packagesByExpirationDate' })
-  async findByExpirationDate(@Args('expirationDate') expirationDate: Date) {
-    return this.packageService.findByExpirationDate(expirationDate);
   }
 
   @Mutation(() => PackageType)
