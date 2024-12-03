@@ -1,99 +1,231 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# GraphQL Packages API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS GraphQL API for managing packages with user authentication and role-based access control.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- GraphQL API with Apollo Server
+- MongoDB integration with Mongoose
+- JWT Authentication
+- Role-based access control (Admin/User)
+- Package management (CRUD operations)
+- Date-based filtering for packages
+- Error handling with custom filters
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- Node.js (v14 or later)
+- MongoDB instance
+- npm or yarn
+
+## Installation
+
+1. Clone the repository
 
 ```bash
-$ yarn install
+git clone <repository-url>
+cd <project-directory>
 ```
 
-## Compile and run the project
+2. Install dependencies
 
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+yarn install
 ```
 
-## Run tests
+3. Configure environment variables
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Server Configuration
+PORT=3000
+
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/your-database-name
+
+# JWT Configuration
+JWT_SECRET=your-secret-key-here
+JWT_EXPIRES_IN=24h
+```
+
+4. Start the development server
 
 ```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+yarn start:dev
 ```
 
-## Deployment
+The GraphQL playground will be available at `http://localhost:3000/graphql`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## API Usage
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Authentication
+
+1. Register a new user:
+
+```graphql
+mutation {
+  register(createUserInput: {
+    username: "john_doe"
+    email: "john@example.com"
+    password: "password123"
+    role: User
+  }) {
+    id
+    username
+    email
+    role
+  }
+}
+```
+
+2. Login:
+
+```graphql
+mutation {
+  login(loginUserInput: {
+    email: "john@example.com"
+    password: "password123"
+  }) {
+    access_token
+    email
+  }
+}
+```
+
+### Package Operations
+
+All package operations require authentication. Admin role is required for create, update, and delete operations.
+
+1. Create Package (Admin only):
+
+```graphql
+mutation {
+  createPackage(createPackageInput: {
+    name: "Premium Package"
+    description: "Premium features"
+    price: 99.99
+    expirationDate: "2024-12-31T23:59:59Z"
+  }) {
+    id
+    name
+    price
+  }
+}
+```
+
+2. Query Packages:
+
+```graphql
+query {
+  packages {
+    id
+    name
+    description
+    price
+    expirationDate
+  }
+}
+```
+
+3. Query Packages by Expiration Date:
+
+```graphql
+query {
+  packages(expirationDate: "2024-12-31") {
+    id
+    name
+    expirationDate
+  }
+}
+```
+
+4. Update Package (Admin only):
+
+```graphql
+mutation {
+  updatePackage(updatePackageInput: {
+    id: "package-id"
+    name: "Updated Package Name"
+    price: 149.99
+  }) {
+    id
+    name
+    price
+  }
+}
+```
+
+5. Delete Package (Admin only):
+
+```graphql
+mutation {
+  deletePackage(id: "package-id") {
+    id
+    name
+  }
+}
+```
+
+## Authentication Headers
+
+For protected routes, include the JWT token in the HTTP headers:
+
+```json
+{
+  "Authorization": "Bearer your-jwt-token"
+}
+```
+
+## Error Handling
+
+The API includes a custom GraphQL exception filter that provides consistent error responses:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Error message",
+      "extensions": {
+        "code": "ERROR_CODE",
+        "status": 400
+      }
+    }
+  ]
+}
+```
+
+## Available Scripts
 
 ```bash
-$ yarn install -g mau
-$ mau deploy
+# Development
+yarn start:dev
+
+# Production build
+yarn build
+yarn start:prod
+
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| PORT | Server port number | 3000 |
+| MONGODB_URI | MongoDB connection string | - |
+| JWT_SECRET | Secret key for JWT tokens | - |
+| JWT_EXPIRES_IN | JWT token expiration time | 24h |
+
+## Project Structure
+
 ```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+src/
+├── auth/           # Authentication related files
+├── common/         # Shared utilities and filters
+├── packages/       # Package module
+├── users/          # User module
+├── app.module.ts   # Main application module
+└── main.ts         # Application entry point
+```
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is [MIT licensed](LICENSE).
